@@ -10,16 +10,20 @@ const routes = [
     component: ClientList
   },
   {
-    path: '/edit-client/:id',        // 👈 dynamic segment for ID
+    path: '/edit-client/:id',
     name: 'EditClient',
     component: EditClient,
-    props: true                      // 👈 optional: passes `id` as a prop
+    props: true
   },
-    {
-    path: '/add-client/',        // 👈 dynamic segment for ID; 0 = new Client
+  {
+    path: '/add-client',
     name: 'AddClient',
-    component: AddClient,
-    props: true                      // 👈 optional: passes `id` as a prop
+    component: AddClient
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue') // optional fallback
   }
 ];
 
