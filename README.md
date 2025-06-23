@@ -6,7 +6,7 @@ A Vue 3 frontend application for managing client records and associated phone nu
 
 ## 🚀 Features
 
-- List, Add, edit, and archive client records
+- List, Add, Edit, and Archive client records (Basic CRUD operations)
 - Manage multiple phone numbers per client
 - Validation and error handling
 - Toast notifications for user feedback
