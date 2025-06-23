@@ -56,6 +56,9 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
+  <h2 class="text-2xl font-semibold mb-4">Add Client
+    <router-link :to="`add-client/`"><i class="far fa-plus-square cursor-pointer green-icon"></i></router-link>
+  </h2>
   <div class="overflow-x-auto">
   <table class="min-w-full table-auto border border-gray-200 rounded-lg shadow-sm">
     <thead class="bg-gray-100 text-gray-700">
@@ -77,14 +80,17 @@ function confirmDelete(clientId: number) {
           <ul v-if="client.phones && client.phones.length">
             <li v-for="phone in client.phones" :key="phone.phoneId">{{ phone.phoneNumber }}</li>
           </ul>
-          <span v-else>No phone</span>
+          <span v-else><li>No phone</li></span>
         </td>
         <td class="px-8 py-4">
           <a :href="`mailto:${client.email}`" class="text-blue-600 hover:underline">
             {{ client.email }}
           </a>
         </td>
-        <td class="px-8 py-4 text-right"><i class="fal fa-check-square"></i> {{ client.isArchived }}</td>
+        <td class="px-8 py-4 center">
+          <i class="fas fa-book-dead archived-yes" v-if="client.isArchived"></i>
+          <i class="fas fa-book-open archived-no" v-if="!client.isArchived"></i>
+        </td>
         <td class="px-8 py-4">
           <router-link :to="`edit-client/${client.clientId}`" class="text-blue-600 hover:underline">
             Edit
@@ -99,3 +105,65 @@ function confirmDelete(clientId: number) {
 </div>
 
 </template>
+
+<style scoped>
+.head-banner {
+  background-color:silver;
+  color: black;
+  height: 60px;
+  align-content: center;
+}
+
+.input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  width: 40%;
+}
+
+.input-padding {
+  padding: 12px;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.btn-danger {
+  background-color: pink;
+  color: red;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.head-banner {
+  background-color:silver;
+  color: black;
+  height: 60px;
+  align-content: center;
+}
+
+.button-container {
+  text-align: center;
+}
+
+.footer-button {
+  height: 10;
+  width: 20%;
+}
+
+.archived-yes {
+  color: red;
+}
+
+.archived-no {
+  color: forestgreen;
+}
+
+.center {
+  text-align: center;
+}
+</style>

@@ -58,6 +58,10 @@ button:focus-visible {
   padding: 2em;
 }
 
+.green-icon {
+  color: green;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
