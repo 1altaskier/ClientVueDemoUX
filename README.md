@@ -59,3 +59,26 @@ POST /api/Clients
 PUT /api/Clients/{id}
 
 GET /api/PhoneTypes
+
+---
+
+📁 Project Structure
+src/
+├── components/
+├── views/
+├── router/
+├── api/
+└── assets/
+
+📦 Deployment
+npm run build
+
+---
+
+🧠 Author
+Britt Moody
+GitHub
+Feel free to fork, star, or contribute!
+
+📄 License
+This project is open source and available under the MIT License.
