@@ -31,7 +31,7 @@ A Vue 3 frontend application for managing client records and associated phone nu
 ### Prerequisites
 
 - Node.js v16+ recommended
-- Backend API running (see [PorchFinal.DAL](https://github.com/1altaskier/ClientVueDemoUX) — update API URLs if needed
+- Backend API running (see [ClientVueDemoUX](https://github.com/1altaskier/ClientVueDemoUX) — update API URLs if needed
 
 ### Installation
 
