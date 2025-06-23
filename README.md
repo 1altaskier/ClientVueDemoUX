@@ -78,9 +78,9 @@ npm run build
 ---
 
 🧠 Author
-Britt Moody
-GitHub
-Feel free to fork, star, or contribute!
+- Britt Moody
+- GitHub
+- Feel free to fork, star, or contribute!
 
 📄 License
-This project is open source and available under the MIT License.
+- This project is open source and available under the MIT License.
