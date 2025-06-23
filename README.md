@@ -23,3 +23,9 @@ A Vue 3 frontend application for managing client records and associated phone nu
 - [Vue Router](https://router.vuejs.org/)
 - [Toastification](https://github.com/Maronato/vue-toastification)
 - [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+## 🏁 Getting Started
+
+### Prerequisites
