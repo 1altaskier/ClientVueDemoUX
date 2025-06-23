@@ -45,3 +45,15 @@ npm install
 
 # Run development server
 npm run dev
+```
+
+Then open http://localhost:5173 in your browser.
+
+🔌 API Endpoints (Expected)
+GET /api/Clients
+
+POST /api/Clients
+
+PUT /api/Clients/{id}
+
+GET /api/PhoneTypes
