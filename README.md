@@ -29,3 +29,19 @@ A Vue 3 frontend application for managing client records and associated phone nu
 ## 🏁 Getting Started
 
 ### Prerequisites
+
+- Node.js v16+ recommended
+- Backend API running (see [PorchFinal.DAL](https://github.com/your-backend-repo)) — update API URLs if needed
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/1altaskier/ClientVueDemoUX.git
+cd ClientVueDemoUX
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
