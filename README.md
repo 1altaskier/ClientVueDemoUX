@@ -13,3 +13,13 @@ A Vue 3 frontend application for managing client records and associated phone nu
 - Connected to a .NET Core API
 - Clean, responsive UI with Tailwind CSS
 - Built with TypeScript + Vue Router + Axios
+
+---
+
+## 🧱 Tech Stack
+- [Vue 3](https://vuejs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Axios](https://axios-http.com/)
+- [Vue Router](https://router.vuejs.org/)
+- [Toastification](https://github.com/Maronato/vue-toastification)
+- [Tailwind CSS](https://tailwindcss.com/)
