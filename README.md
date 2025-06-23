@@ -63,12 +63,14 @@ GET /api/PhoneTypes
 ---
 
 📁 Project Structure
+```
 src/
 ├── components/
 ├── views/
 ├── router/
 ├── api/
 └── assets/
+```
 
 📦 Deployment
 npm run build
