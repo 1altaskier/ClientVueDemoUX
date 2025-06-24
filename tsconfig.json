@@ -5,9 +5,10 @@
       "paths": {
       "@/*": ["src/*"]
     },
-    "module": "nodenext",
+    "module": "ESNext",
     "target": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "noEmit": true,
     "composite": true,

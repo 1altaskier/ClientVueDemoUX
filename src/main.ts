@@ -4,14 +4,16 @@ import router from './router'
 import 'vue-toastification/dist/index.css'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import '@fortawesome/fontawesome-free/css/all.min.css'
-import { faCheckSquare } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faCheckSquare)
+// Import specific icons or whole packs
+import { fas } from '@fortawesome/free-solid-svg-icons'
+
+library.add(fas)
 
 const app = createApp(App)
 
-app.use(router)
+//app.use(router)
+app.component('font-awesome-icon', FontAwesomeIcon)
 
-//app.component('font-awesome-icon', FontAwesomeIcon)
 app.mount('#app')
