@@ -56,8 +56,8 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
-  <h2 class="text-2xl font-semibold mb-4">Add Client
-    <router-link :to="`add-client/`"><i class="far fa-plus-square cursor-pointer green-icon"></i></router-link>
+  <h2 class="text-2xl font-semibold mb-4">Add Client XXX
+    <router-link :to="`add-client/`"><i class="fas fa-plus cursor-pointer green-icon"></i></router-link>x
   </h2>
   <div class="overflow-x-auto">
   <table class="min-w-full table-auto border border-gray-200 rounded-lg shadow-sm">

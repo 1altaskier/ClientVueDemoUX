@@ -3,15 +3,17 @@ import App from './App.vue'
 import router from './router'
 import 'vue-toastification/dist/index.css'
 
-//import { library } from '@fontawesome/fontawesome-svg-core'
-//import '@fontawesome/fontawesome-free/css/all.min.css'
-//import { faCheckSquare } from '@fontawesome/free-solid-svg-icons'npm install @fortawesome/free-brands-svg-icons
+// Font Awesome setup
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faUser, faPhone, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-//library.add(faCheckSquare)
+// Add icons to the library
+library.add(faUser, faPhone, faTrash, faEdit)
 
 const app = createApp(App)
 
 app.use(router)
 
-//app.component('font-awesome-icon', FontAwesomeIcon)
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.mount('#app')
