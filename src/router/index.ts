@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ClientList from '../views/ClientList.vue';
-import EditClient from '@/components/EditClient.vue';
-import AddClient from '@/components/AddClient.vue';
+import EditClient from '../views/EditClient.vue';
+import AddClient from '../views/AddClient.vue';
 
 const routes = [
   {
@@ -10,16 +10,16 @@ const routes = [
     component: ClientList
   },
   {
-    path: '/edit-client/:id',        // 👈 dynamic segment for ID
+    path: '/components/EditClient/:id',
     name: 'EditClient',
     component: EditClient,
-    props: true                      // 👈 optional: passes `id` as a prop
+    props: true
   },
     {
-    path: '/add-client/',        // 👈 dynamic segment for ID; 0 = new Client
+    path: '/components/', 
     name: 'AddClient',
     component: AddClient,
-    props: true                      // 👈 optional: passes `id` as a prop
+    props: true
   }
 ];
 

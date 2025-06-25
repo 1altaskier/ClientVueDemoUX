@@ -92,7 +92,7 @@ function confirmDelete(clientId: number) {
           <font-awesome-icon :icon="['fas', 'book-open']" v-if="!client.isArchived" class="archived-no" />
         </td>
         <td class="px-8 py-4">
-          <router-link :to="`edit-client/${client.clientId}`" class="text-blue-600 hover:underline">
+          <router-link :to="`edit-client/${client.clientId}`" class="text-blue-600 hover:underline tooltiptextt">
             <font-awesome-icon :icon="['fas', 'edit']" />
             Edit
           </router-link> 
@@ -154,4 +154,47 @@ function confirmDelete(clientId: number) {
 .center {
   text-align: center;
 }
+
+/* Tooltip container */
+.tooltip-edit {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+.tooltip-archive {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+.tooltip-delete {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 </style>
