@@ -56,8 +56,8 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
-  <h2 class="text-2xl font-semibold mb-4">Add Client XXX
-    <router-link :to="`add-client/`"><i class="fas fa-plus cursor-pointer green-icon"></i></router-link>x
+  <h2 class="text-2xl font-semibold mb-4 head-banner">Add Client
+    <router-link :to="`add-client/`"><font-awesome-icon :icon="['fas', 'plus']" class="cursor-pointer" /></router-link>
   </h2>
   <div class="overflow-x-auto">
   <table class="min-w-full table-auto border border-gray-200 rounded-lg shadow-sm">
@@ -88,16 +88,18 @@ function confirmDelete(clientId: number) {
           </a>
         </td>
         <td class="px-8 py-4 center">
-          <i class="fas fa-book-dead archived-yes" v-if="client.isArchived"></i>
-          <i class="fas fa-book-open archived-no" v-if="!client.isArchived"></i>
+          <font-awesome-icon :icon="['fas', 'book-dead']" v-if="client.isArchived" class="archived-yes" />
+          <font-awesome-icon :icon="['fas', 'book-open']" v-if="!client.isArchived" class="archived-no" />
         </td>
         <td class="px-8 py-4">
           <router-link :to="`edit-client/${client.clientId}`" class="text-blue-600 hover:underline">
+            <font-awesome-icon :icon="['fas', 'edit']" />
             Edit
-          </router-link> | 
-          <button @click="confirmDelete(client.clientId)" class="text-red-600 hover:underline bg-transparent border-none p-0 m-0 cursor-pointer">
-            Delete
-          </button>
+          </router-link> 
+          | 
+          <font-awesome-icon :icon="['fas', 'archive']" @click="confirmDelete(client.clientId)" />
+          |
+          <font-awesome-icon :icon="['fas', 'user-times']" class="danger" />
         </td>
       </tr>
     </tbody>
@@ -107,13 +109,6 @@ function confirmDelete(clientId: number) {
 </template>
 
 <style scoped>
-.head-banner {
-  background-color:silver;
-  color: black;
-  height: 60px;
-  align-content: center;
-}
-
 .input {
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -137,13 +132,6 @@ function confirmDelete(clientId: number) {
   color: red;
   padding: 0.5rem 1rem;
   border-radius: 6px;
-}
-
-.head-banner {
-  background-color:silver;
-  color: black;
-  height: 60px;
-  align-content: center;
 }
 
 .button-container {

@@ -31,6 +31,8 @@ const route = useRoute()
 const router = useRouter()
 const clientId = Number(route.params.id)
 
+const visible = ref(true)
+
 const client = ref<Client>({
   clientId: 0,
   firstName: '',
@@ -103,6 +105,10 @@ async function updateClient() {
   router.push('/')
 }
 
+function toggleVisible() {
+  visible.value = !visible.value
+}
+
 onMounted(() => {
   loadPhoneTypes()
   loadClient()
@@ -111,8 +117,8 @@ onMounted(() => {
 
 <template>
   <div class="p-4 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-semibold mb-4"><i>Edit Client</i></h1>
-
+    <h1 class="text-2xl font-semibold mb-4">
+      <i>Edit Client</i></h1>
     <hr />
       <h3 class="text-xl mt-6 mb-2 p-2 rounded head-banner"><i>Client Information</i></h3>
     <hr />
@@ -142,9 +148,19 @@ onMounted(() => {
       </div>
 
       <hr />
-      <h3 class="text-xl mt-6 mb-2 head-banner"><i>Phone Numbers ({{client.phones.length}})</i>
+    <h3 class="text-xl mt-6 mb-2 head-banner"><i>Phone Numbers ({{client.phones.length}})</i>
       </hr>
       &nbsp;
+      <template>
+        <div  class="cursor-pointer text-2xl">
+          <font-awesome-icon :icon="visible ? ['fas', 'minus'] : ['fas', 'plus']" class="cursor-pointer"  />
+        </div>
+      </template>
+      <font-awesome-icon :icon="['fas', 'minus']" class="cursor-pointer" 
+        v-if="showPhones" />
+      <font-awesome-icon :icon="['fas', 'plus']" class="cursor-pointer" 
+        v-else
+        @click="showPhones = true" />
         <i
           class="far fa-minus-square cursor-pointer"
           v-if="showPhones"
@@ -163,12 +179,12 @@ onMounted(() => {
          :key="index" 
          class="border p-3 rounded mb-2"
       >
-        <label><b>Number:</b></label>
+        <label><b>* Number:</b></label>
         <div>
           <input v-model="phone.phoneNumber" class="input w-full mb-2" placeholder="Phone Number" />
         </div>
 
-        <label><b>Phone Type:</b></label>
+        <label><b>* Phone Type:</b></label>
         <div>
           <select v-model="phone.phoneTypeId" class="input w-full">
             <option disabled value="">Select Phone Type</option>
@@ -219,13 +235,6 @@ onMounted(() => {
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 6px;
-}
-
-.head-banner {
-  background-color:silver;
-  color: black;
-  height: 60px;
-  align-content: center;
 }
 
 .button-container {
