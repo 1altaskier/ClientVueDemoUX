@@ -91,13 +91,12 @@ function confirmDelete(clientId: number) {
           <font-awesome-icon :icon="['fas', 'book-dead']" v-if="client.isArchived" class="archived-yes" />
           <font-awesome-icon :icon="['fas', 'book-open']" v-if="!client.isArchived" class="archived-no" />
         </td>
-        <td class="px-8 py-4">
-          <router-link :to="`edit-client/${client.clientId}`" class="text-blue-600 hover:underline tooltiptextt">
-            <font-awesome-icon :icon="['fas', 'edit']" />
-            Edit
+        <td class="px-8 py-4 actions align-col-center" >
+          <router-link :to="`edit-client/${client.clientId}`">
+            <font-awesome-icon :icon="['fas', 'edit']" class="archived-no" />
           </router-link> 
           | 
-          <font-awesome-icon :icon="['fas', 'archive']" @click="confirmDelete(client.clientId)" />
+          <font-awesome-icon :icon="['fas', 'archive']" class="archive" @click="confirmDelete(client.clientId)" />
           |
           <font-awesome-icon :icon="['fas', 'user-times']" class="danger" />
         </td>
@@ -195,6 +194,19 @@ function confirmDelete(clientId: number) {
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.archive{
+  color: orange;
+}
+
+.update{
+  color: forestgreen;
+}
+
+.align-col-center{
+  width: 30%;
+  text-align: center;
 }
 
 </style>
