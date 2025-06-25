@@ -2,11 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 import ClientList from '../views/ClientList.vue';
 import EditClient from '@/components/EditClient.vue';
 import AddClient from '@/components/AddClient.vue';
+import Home from '../views/Home.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
+    component: Home
+  },
+    {
+    path: '/',
+    name: 'ClientList',
     component: ClientList
   },
   {
