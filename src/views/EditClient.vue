@@ -210,10 +210,10 @@ onMounted(() => {
       <button type="button" @click="addPhone" class="btn-primary">+ Add Phone</button>
 
       <div class="mt-6">
-        <button type="submit" class="btn-primary" @click="updateClient()">Update Client</button>
+        <button type="submit" class="btn-primary" @click="updateClient()">Update Client</button> <button type="reset" class="btn-primary" >Reset All</button>
       </div>
 
-          <hr />
+    <hr />
 
     <div class="button-container">
       <button type="reset" class="btn-primary footer-button" @click="router.push('/')"><< Back To Client List</button>

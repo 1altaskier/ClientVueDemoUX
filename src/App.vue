@@ -1,14 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-100 text-gray-900">
-
-    <main class="p-6">
-      <router-view />
-    </main>
+  <div id="app">
+    <router-view />
+    <AppFooter />
   </div>
 </template>
 
-<script setup>
+//<script setup>
 // No imports needed unless you're adding a layout component
+//import AppFooter from '@/components/AppFooter.vue'
 </script>
 
 <style>
@@ -22,12 +21,17 @@ body {
   background-color:silver;
   color: black;
   height: 60px;
-  width: 70%;
+  width: 100%;
   align-content: center;
 }
 
 .danger {
   background-color:white;
   color: red;
+}
+
+.stealie-icon {
+  width: 40px;
+  height: 40px;
 }
 </style>

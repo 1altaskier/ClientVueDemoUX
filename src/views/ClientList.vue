@@ -56,18 +56,24 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
-  <h2 class="text-2xl font-semibold mb-4 head-banner">Add Client
-    <router-link :to="`add-client/`"><font-awesome-icon :icon="['fas', 'plus']" class="cursor-pointer" /></router-link>
+  <h2 class="text-2xl font-semibold mb-4 head-banner">Client List
+    <router-link :to="`add-client/`">
+      <font-awesome-icon :icon="['fas', 'address-card']" class="update" /> 
+    </router-link>
+
+    <router-link :to="`add-client/`">
+      <font-awesome-icon :icon="['fas', 'plus']" class="cursor-pointer update" />
+    </router-link>
   </h2>
   <div class="overflow-x-auto">
   <table class="min-w-full table-auto border border-gray-200 rounded-lg shadow-sm">
     <thead class="bg-gray-100 text-gray-700">
       <tr>
-        <th class="px-8 py-4 text-left">First Name</th>
-        <th class="px-8 py-4 text-left">Last Name</th>
-        <th class="px-8 py-4 text-left">Phone Number(s)</th>
-        <th class="px-8 py-4 text-left">Email</th>
-        <th class="px-8 py-4 text-center">Archived</th>
+        <th class="px-8 py-4 align-left">First Name</th>
+        <th class="px-8 py-4 align-left">Last Name</th>
+        <th class="px-8 py-4 align-left">Phone Number(s)</th>
+        <th class="px-8 py-4 align-left">Email</th>
+        <th class="px-8 py-4 align-left">Archived</th>
         <th class="px-8 py-4 text-left">Actions</th>
       </tr>
     </thead>
@@ -78,7 +84,7 @@ function confirmDelete(clientId: number) {
         <td class="px-8 py-4">{{ client.lastName }}</td>
         <td class="px-8 py-4">
           <ul v-if="client.phones && client.phones.length">
-            <li v-for="phone in client.phones" :key="phone.phoneId">{{ phone.phoneNumber }}</li>
+            <li v-for="phone in client.phones" :key="phone.phoneId"><a href="`tel:{{phone.phoneNumber}}`">{{ phone.phoneNumber }}</a></li>
           </ul>
           <span v-else><li>No phone</li></span>
         </td>
@@ -87,13 +93,21 @@ function confirmDelete(clientId: number) {
             {{ client.email }}
           </a>
         </td>
-        <td class="px-8 py-4 center">
+        <td class="px-8 py-4 align-small-center">
           <font-awesome-icon :icon="['fas', 'book-dead']" v-if="client.isArchived" class="archived-yes" />
           <font-awesome-icon :icon="['fas', 'book-open']" v-if="!client.isArchived" class="archived-no" />
         </td>
         <td class="px-8 py-4 actions align-col-center" >
+          <template>
+            <font-awesome-icon
+              v-tooltip="'Add a new client'"
+              icon="plus"
+              class="cursor-pointer"
+            />
+          </template>
+
           <router-link :to="`edit-client/${client.clientId}`">
-            <font-awesome-icon :icon="['fas', 'edit']" class="archived-no" />
+            <font-awesome-icon :icon="['fas', 'edit']" title="Edit client" class="archived-no" />
           </router-link> 
           | 
           <font-awesome-icon :icon="['fas', 'archive']" class="archive" @click="confirmDelete(client.clientId)" />
@@ -205,8 +219,17 @@ function confirmDelete(clientId: number) {
 }
 
 .align-col-center{
-  width: 30%;
+  width: 10%;
   text-align: center;
 }
 
+.align-small-center{
+  width: 5%;
+  text-align: center;
+}
+
+.align-left{
+  width: 5%;
+  text-align: left;
+}
 </style>

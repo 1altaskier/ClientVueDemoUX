@@ -10,7 +10,7 @@ const routes = [
     component: ClientList
   },
   {
-    path: '/components/EditClient/:id',
+    path: '/edit-client/:id',
     name: 'EditClient',
     component: EditClient,
     props: true
