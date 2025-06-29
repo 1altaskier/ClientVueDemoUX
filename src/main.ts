@@ -2,7 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
-// Im[ot Toaster]
+// Import Toaster
+import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
 // Import specific icons or whole packs
@@ -15,10 +16,21 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
+// Import Tailwind
+import './style.css'
+
 library.add(faPlus)
 library.add(fas)
 
 const app = createApp(App)
+
+app.use(Toast, {
+  position: 'top-right',
+  timeout: 3000,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+})
 
 app.use(FloatingVue)
 app.use(router)

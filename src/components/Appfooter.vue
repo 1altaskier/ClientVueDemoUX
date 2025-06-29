@@ -12,8 +12,5 @@
 </template>
 
 <style scoped>
-.stealie-icon {
-  width: 45px;
-  height: 45px;
-}
+
 </style>

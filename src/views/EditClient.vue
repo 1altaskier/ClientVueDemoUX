@@ -3,8 +3,26 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import { reactive } from 'vue'
 
 const toast = useToast()
+
+const route = useRoute()
+const router = useRouter()
+
+const clientId = Number(route.params.id)
+
+const phoneErrors = ref<string[]>([]) // One error message per phone
+const showPhones = ref(false) // start hidden
+const phoneTypes = ref<PhoneType[]>([])
+
+//Error Handling
+const visible = ref(true)
+
+const form = reactive({
+  name: '',
+  email: ''
+})
 
 interface Phone {
   phoneId?: number
@@ -26,12 +44,6 @@ interface PhoneType {
   phoneTypeId: number
   type: string
 }
-
-const route = useRoute()
-const router = useRouter()
-const clientId = Number(route.params.id)
-
-const visible = ref(true)
 
 const client = ref<Client>({
   clientId: 0,
@@ -63,12 +75,18 @@ const validatePhones = () => {
     return ''
   })
 
+  function validateForm() {
+  if (!form.name || !form.email) {
+    toast.error('Please fill out all required fields.')
+    return false
+  }
+
+    // Add more validation as needed
+    return true
+  }
+
   return phoneErrors.value.every(err => err === '')
 }
-
-const phoneErrors = ref<string[]>([]) // One error message per phone
-const showPhones = ref(false) // start hidden
-const phoneTypes = ref<PhoneType[]>([])
 
 const loadClient = async () => {
   const { data } = await axios.get<Client>(`https://localhost:7242/api/Clients/${clientId}`)
@@ -113,12 +131,16 @@ onMounted(() => {
   loadPhoneTypes()
   loadClient()
 })
+
+function showToast() {
+  toast.success('🔥 Toasts are working!')
+}
 </script>
 
 <template>
   <div class="p-4 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-semibold mb-4">
-      <i>Edit Client</i></h1>
+    <h1 class="text-2xl font-semibold mb-4 title">
+      <i>Edit Client</i></h1><button @click="showToast">Test Toast</button>
     <hr />
       <h3 class="text-xl mt-6 mb-2 p-2 rounded head-banner"><i>Client Information</i></h3>
     <hr />
@@ -128,6 +150,7 @@ onMounted(() => {
           <label><b>* First Name:</b></label>
           <div>
             <input v-model="client.firstName" class="input" required />
+
           </div>
         </div>
         <div>
@@ -152,9 +175,20 @@ onMounted(() => {
       </hr>
       &nbsp;
       <template>
-        <div  class="cursor-pointer text-2xl">
-          <font-awesome-icon :icon="visible ? ['fas', 'minus'] : ['fas', 'plus']" class="cursor-pointer"  />
-        </div>
+        <template>
+  <div class="cursor-pointer text-2xl" @click="showPhones = !showPhones">
+    <font-awesome-icon
+      :icon="showPhones ? ['fas', 'minus'] : ['fas', 'plus']"
+      class="cursor-pointer"
+    />
+  </div>
+</template>
+    <div class="cursor-pointer text-2xl" @click="showPhones = !showPhones">
+      <font-awesome-icon
+        :icon="showPhones ? ['fas', 'minus'] : ['fas', 'plus']"
+        class="cursor-pointer"
+      />
+    </div>
       </template>
       <font-awesome-icon :icon="['fas', 'minus']" class="cursor-pointer" 
         v-if="showPhones" />

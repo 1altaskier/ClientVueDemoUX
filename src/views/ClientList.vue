@@ -22,7 +22,6 @@ interface Phone {
   phoneType: string;
 }*/
 
-// Declare `clients` with the correct type
 const clients = ref<Client[]>([]);
 
 onMounted(async () => {
@@ -56,180 +55,68 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
-  <h2 class="text-2xl font-semibold mb-4 head-banner">Client List
-    <router-link :to="`add-client/`">
-      <font-awesome-icon :icon="['fas', 'address-card']" class="update" /> 
-    </router-link>
+  <div>
+    <div class="">
+      <h2 class="">Client List</h2>
+      <router-link :to="`add-client/`" title="Add Client">
+        <font-awesome-icon :icon="['fas', 'plus']" class="" />
+      </router-link>
+    </div>
 
-    <router-link :to="`add-client/`">
-      <font-awesome-icon :icon="['fas', 'plus']" class="cursor-pointer update" />
-    </router-link>
-  </h2>
-  <div class="overflow-x-auto">
-  <table class="min-w-full table-auto border border-gray-200 rounded-lg shadow-sm">
-    <thead class="bg-gray-100 text-gray-700">
-      <tr>
-        <th class="px-8 py-4 align-left">First Name</th>
-        <th class="px-8 py-4 align-left">Last Name</th>
-        <th class="px-8 py-4 align-left">Phone Number(s)</th>
-        <th class="px-8 py-4 align-left">Email</th>
-        <th class="px-8 py-4 align-left">Archived</th>
-        <th class="px-8 py-4 text-left">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="text-gray-800">
-      <!-- Sample row -->
-      <tr class="border-t border-gray-200" v-for="client in clients" :key="client.clientId">
-        <td class="px-8 py-4">{{ client.firstName }}</td>
-        <td class="px-8 py-4">{{ client.lastName }}</td>
-        <td class="px-8 py-4">
-          <ul v-if="client.phones && client.phones.length">
-            <li v-for="phone in client.phones" :key="phone.phoneId"><a href="`tel:{{phone.phoneNumber}}`">{{ phone.phoneNumber }}</a></li>
-          </ul>
-          <span v-else><li>No phone</li></span>
-        </td>
-        <td class="px-8 py-4">
-          <a :href="`mailto:${client.email}`" class="text-blue-600 hover:underline">
-            {{ client.email }}
-          </a>
-        </td>
-        <td class="px-8 py-4 align-small-center">
-          <font-awesome-icon :icon="['fas', 'book-dead']" v-if="client.isArchived" class="archived-yes" />
-          <font-awesome-icon :icon="['fas', 'book-open']" v-if="!client.isArchived" class="archived-no" />
-        </td>
-        <td class="px-8 py-4 actions align-col-center" >
-          <template>
-            <font-awesome-icon
-              v-tooltip="'Add a new client'"
-              icon="plus"
-              class="cursor-pointer"
-            />
-          </template>
-
-          <router-link :to="`edit-client/${client.clientId}`">
-            <font-awesome-icon :icon="['fas', 'edit']" title="Edit client" class="archived-no" />
-          </router-link> 
-          | 
-          <font-awesome-icon :icon="['fas', 'archive']" class="archive" @click="confirmDelete(client.clientId)" />
-          |
-          <font-awesome-icon :icon="['fas', 'user-times']" class="danger" />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
+    <div class="">
+      <table class="">
+        <thead class="">
+          <tr>
+            <th class="">First Name</th>
+            <th class="">Last Name</th>
+            <th class="">Phone Number(s)</th>
+            <th class="">Email</th>
+            <th class=" text-center">Archived</th>
+            <th class=" text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          <tr v-for="client in clients" :key="client.clientId" class="hover:bg-gray-50">
+            <td class="">{{ client.firstName }}</td>
+            <td class="">{{ client.lastName }}</td>
+            <td class="">
+              <ul v-if="client.phones?.length">
+                <li v-for="phone in client.phones" :key="phone.phoneId">
+                  <a :href="`tel:${phone.phoneNumber}`" class="">
+                    {{ phone.phoneNumber }}
+                  </a>
+                </li>
+              </ul>
+              <span v-else class="">No phone</span>
+            </td>
+            <td class="">
+              <a :href="`mailto:${client.email}`" class="">
+                {{ client.email }}
+              </a>
+            </td>
+            <td class="">
+              <font-awesome-icon :icon="client.isArchived ? ['fas', 'book-dead'] : ['fas', 'book-open']"
+                :class="client.isArchived ? 'text-red-600' : 'text-green-600'" />
+            </td>
+            <td class="">
+              <router-link :to="`edit-client/${client.clientId}`" title="Edit Client">
+                <font-awesome-icon :icon="['fas', 'edit']" class="" />
+              </router-link>
+              <button @click="confirmDelete(client.clientId)" title="Archive" class="focus:outline-none">
+                <font-awesome-icon :icon="['fas', 'archive']" class="" />
+              </button>
+              <button title="Delete" class="focus:outline-none">
+                <font-awesome-icon :icon="['fas', 'user-times']" class="" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
+
 <style scoped>
-.input {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  width: 40%;
-}
 
-.input-padding {
-  padding: 12px;
-}
-
-.btn-primary {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-}
-
-.btn-danger {
-  background-color: pink;
-  color: red;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-}
-
-.button-container {
-  text-align: center;
-}
-
-.footer-button {
-  height: 10;
-  width: 20%;
-}
-
-.archived-yes {
-  color: red;
-}
-
-.archived-no {
-  color: forestgreen;
-}
-
-.center {
-  text-align: center;
-}
-
-/* Tooltip container */
-.tooltip-edit {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-.tooltip-archive {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-.tooltip-delete {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
-}
-
-/* Tooltip text */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: black;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-
-  /* Position the tooltip text - see examples below! */
-  position: absolute;
-  z-index: 1;
-  top: 100%;
-  left: 50%;
-  margin-left: -60px;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-
-.archive{
-  color: orange;
-}
-
-.update{
-  color: forestgreen;
-}
-
-.align-col-center{
-  width: 10%;
-  text-align: center;
-}
-
-.align-small-center{
-  width: 5%;
-  text-align: center;
-}
-
-.align-left{
-  width: 5%;
-  text-align: left;
-}
 </style>
