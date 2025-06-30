@@ -15,6 +15,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.9.0",
+    "bootstrap": "^5.3.7",
     "floating-vue": "^5.2.2",
     "vue": "^3.5.14",
     "vue-router": "^4.5.1",
@@ -22,7 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.21",
-    "@vitejs/plugin-vue": "^5.2.3",
+    "@vitejs/plugin-vue": "^5.2.4",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",

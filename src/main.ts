@@ -2,6 +2,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+// Import Tailwind
+//import './assets/main.css'
+
+// Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 // Import Toaster
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
@@ -15,9 +21,6 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 // Import Floating Vue for Tool Tips
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
-
-// Import Tailwind
-import './style.css'
 
 library.add(faPlus)
 library.add(fas)

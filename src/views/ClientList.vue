@@ -55,58 +55,80 @@ function confirmDelete(clientId: number) {
 </script>
 
 <template>
-  <div>
-    <div class="">
-      <h2 class="">Client List</h2>
-      <router-link :to="`add-client/`" title="Add Client">
-        <font-awesome-icon :icon="['fas', 'plus']" class="" />
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="text-secondary">Client List</h2>
+      <router-link
+        to="add-client/"
+        class="btn btn-outline-primary"
+        title="Add Client"
+      >
+        <font-awesome-icon :icon="['fas', 'plus']" /> Add Client
       </router-link>
     </div>
-
-    <div class="">
-      <table class="">
-        <thead class="">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
           <tr>
-            <th class="">First Name</th>
-            <th class="">Last Name</th>
-            <th class="">Phone Number(s)</th>
-            <th class="">Email</th>
-            <th class=" text-center">Archived</th>
-            <th class=" text-center">Actions</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone Number(s)</th>
+            <th>Email</th>
+            <th class="text-center">Archived</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
-        <tbody class="">
-          <tr v-for="client in clients" :key="client.clientId" class="hover:bg-gray-50">
-            <td class="">{{ client.firstName }}</td>
-            <td class="">{{ client.lastName }}</td>
-            <td class="">
-              <ul v-if="client.phones?.length">
+        <tbody>
+          <tr v-for="client in clients" :key="client.clientId">
+            <td>{{ client.firstName }}</td>
+            <td>{{ client.lastName }}</td>
+            <td>
+              <ul class="list-unstyled mb-0" v-if="client.phones?.length">
                 <li v-for="phone in client.phones" :key="phone.phoneId">
-                  <a :href="`tel:${phone.phoneNumber}`" class="">
+                  <a :href="`tel:${phone.phoneNumber}`" class="text-decoration-none text-primary">
                     {{ phone.phoneNumber }}
                   </a>
                 </li>
               </ul>
-              <span v-else class="">No phone</span>
+              <span v-else class="text-muted fst-italic">No phone</span>
             </td>
-            <td class="">
-              <a :href="`mailto:${client.email}`" class="">
+            <td>
+              <a :href="`mailto:${client.email}`" class="text-decoration-none text-primary">
                 {{ client.email }}
               </a>
             </td>
-            <td class="">
-              <font-awesome-icon :icon="client.isArchived ? ['fas', 'book-dead'] : ['fas', 'book-open']"
-                :class="client.isArchived ? 'text-red-600' : 'text-green-600'" />
+            <td class="text-center">
+              <font-awesome-icon
+                :icon="client.isArchived ? ['fas', 'book-dead'] : ['fas', 'book-open']"
+                :class="client.isArchived ? 'text-danger' : 'text-success'"
+                title="Archived status"
+              />
             </td>
-            <td class="">
-              <router-link :to="`edit-client/${client.clientId}`" title="Edit Client">
-                <font-awesome-icon :icon="['fas', 'edit']" class="" />
+            <td class="text-center">
+              <router-link
+                :to="`edit-client/${client.clientId}`"
+                title="Edit Client"
+                class="btn btn-sm btn-outline-secondary me-1"
+              >
+                <font-awesome-icon :icon="['fas', 'edit']" />
               </router-link>
-              <button @click="confirmDelete(client.clientId)" title="Archive" class="focus:outline-none">
-                <font-awesome-icon :icon="['fas', 'archive']" class="" />
+
+              <button
+                @click="confirmDelete(client.clientId)"
+                title="Archive"
+                class="btn btn-sm btn-outline-warning me-1"
+                type="button"
+              >
+                <font-awesome-icon :icon="['fas', 'archive']" />
               </button>
-              <button title="Delete" class="focus:outline-none">
-                <font-awesome-icon :icon="['fas', 'user-times']" class="" />
+
+              <button
+                title="Delete"
+                class="btn btn-sm btn-outline-danger"
+                type="button"
+                @click="confirmDelete(client.clientId)"
+              >
+                <font-awesome-icon :icon="['fas', 'user-times']" />
               </button>
             </td>
           </tr>
@@ -115,8 +137,3 @@ function confirmDelete(clientId: number) {
     </div>
   </div>
 </template>
-
-
-<style scoped>
-
-</style>
