@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import SearchBar from '@/components/SearchBar.vue'
+import { ref, onMounted, computed } from 'vue';
 
 interface Client {
   clientId: number;
@@ -22,7 +23,18 @@ interface Phone {
   phoneType: string;
 }*/
 
+const query = ref('')
+
 const clients = ref<Client[]>([]);
+
+const filteredClients = computed(() => {
+  if (!query.value.trim()) return clients.value
+  const lower = query.value.toLowerCase()
+  return clients.value.filter(c =>
+    `${c.firstName} ${c.lastName}`.toLowerCase().includes(lower)
+    || c.email?.toLowerCase().includes(lower)
+  )
+})
 
 onMounted(async () => {
   try {
@@ -67,6 +79,7 @@ function confirmDelete(clientId: number) {
       </router-link>
     </div>
     <div class="table-responsive">
+      <SearchBar v-model:query="query" />
       <table class="table table-striped table-hover align-middle">
         <thead class="table-light">
           <tr>
