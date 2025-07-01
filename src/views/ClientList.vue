@@ -21,7 +21,7 @@ interface Phone {
 const itemsPerPage = 10
 const currentPage = ref(1)
 
-const sortKey = ref<'firstName' | 'lastName' | 'email'>('lastName')
+const sortKey = ref<'firstName' | 'lastName' | 'email' | 'phoneNumber'>('lastName')
 const sortAsc = ref(true)
 
 const totalPages = computed(() =>
@@ -35,16 +35,37 @@ const pagedClients = computed(() => {
 })
 
 const sortedClients = computed(() => {
-  const sorted = [...filteredClients.value]
-  sorted.sort((a, b) => {
-    const valA = (a[sortKey.value] || '').toString().toLowerCase()
-    const valB = (b[sortKey.value] || '').toString().toLowerCase()
+  return [...clients.value].sort((a, b) => {
+    let valA: string | number | boolean | undefined
+    let valB: string | number | boolean | undefined
+
+    switch(sortKey.value) {
+      case 'firstName':
+      case 'lastName':
+      case 'email':
+        valA = a[sortKey.value]
+        valB = b[sortKey.value]
+        break
+      case 'phoneNumber':
+        valA = a.phones[0]?.phoneNumber || ''
+        valB = b.phones[0]?.phoneNumber || ''
+        break
+      default:
+        valA = ''
+        valB = ''
+    }
+
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      valA = valA.toLowerCase()
+      valB = valB.toLowerCase()
+    }
+
     if (valA < valB) return sortAsc.value ? -1 : 1
     if (valA > valB) return sortAsc.value ? 1 : -1
     return 0
   })
-  return sorted
 })
+
 
 function changeSort(column: 'firstName' | 'lastName' | 'email') {
   if (sortKey.value === column) {
@@ -119,6 +140,15 @@ onMounted(async () => {
   }
 });
 
+function sortBy(column: 'firstName' | 'lastName' | 'email') {
+  if (sortKey.value === column) {
+    sortAsc.value = !sortAsc.value;
+  } else {
+    sortKey.value = column;
+    sortAsc.value = true;
+  }
+}
+
 function confirmDelete(clientId: number) {
   const client = clients.value.find(c => c.clientId === clientId);
   if (!client) return;
@@ -157,22 +187,62 @@ function confirmDelete(clientId: number) {
       <table class="table table-striped table-hover align-middle">
         <thead class="table-light">
           <tr>
-          <th @click="changeSort('firstName')" class="sortable">
-                First Name
-                <span v-if="sortKey === 'firstName'">{{ sortAsc ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="changeSort('lastName')" class="sortable cursor-pointer">
-                Last Name
-                <span v-if="sortKey === 'lastName'">{{ sortAsc ? '▲' : '▼' }}</span>
-              </th>
-                <th @click="changeSort('lastName')" class="sortable cursor-pointer">
-                Phone Number
-                <span v-if="sortKey === 'lastName'">{{ sortAsc ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="changeSort('email')" class="sortable">
-                Email
-                <span v-if="sortKey === 'email'">{{ sortAsc ? '▲' : '▼' }}</span>
-              </th>
+            <th @click="sortBy('firstName')" class="sortable cursor-pointer">
+              First Name
+              <font-awesome-icon
+                v-if="sortKey === 'firstName' && sortAsc"
+                :icon="['fas', 'arrow-up']"
+                class="ms-1"
+              />
+              <font-awesome-icon
+                v-else-if="sortKey === 'firstName' && !sortAsc"
+                :icon="['fas', 'arrow-down']"
+                class="ms-1"
+              />
+            </th>
+
+            <th @click="sortBy('lastName')" class="sortable cursor-pointer">
+              Last Name
+              <font-awesome-icon
+                v-if="sortKey === 'lastName' && sortAsc"
+                :icon="['fas', 'arrow-up']"
+                class="ms-1"
+              />
+              <font-awesome-icon
+                v-else-if="sortKey === 'lastName' && !sortAsc"
+                :icon="['fas', 'arrow-down']"
+                class="ms-1"
+              />
+            </th>
+
+            <th @click="sortBy('phoneNumber')" class="sortable cursor-pointer">
+              Phone Number
+              <font-awesome-icon
+                v-if="sortKey === 'phoneNumber' && sortAsc"
+                :icon="['fas', 'arrow-up']"
+                class="ms-1"
+              />
+              <font-awesome-icon
+                v-else-if="sortKey === 'phoneNumber' && !sortAsc"
+                :icon="['fas', 'arrow-down']"
+                class="ms-1"
+              />
+            </th>
+
+            <th @click="sortBy('email')" class="sortable cursor-pointer">
+              Email
+              <font-awesome-icon
+                v-if="sortKey === 'email' && sortAsc"
+                :icon="['fas', 'arrow-up']"
+                class="ms-1"
+              />
+              <font-awesome-icon
+                v-else-if="sortKey === 'email' && !sortAsc"
+                :icon="['fas', 'arrow-down']"
+                class="ms-1"
+              />
+            </th>
+
             <th class="text-center">Archived</th>
             <th class="text-center">Actions</th>
           </tr>
