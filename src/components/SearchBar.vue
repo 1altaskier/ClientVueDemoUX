@@ -3,9 +3,9 @@
     <input
       type="text"
       class="form-control"
-      placeholder="Search clients..."
-      v-model="searchQuery"
+      :value="query"
       @input="onInput"
+      placeholder="Search clients..."
     />
     <button class="btn btn-outline-secondary" type="button" @click="clearSearch">
       ✖
@@ -14,20 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineEmits } from 'vue'
+const props = defineProps<{ query: string }>()
+const emit = defineEmits<{ (e: 'update:query', value: string): void }>()
 
-const emit = defineEmits<{
-  (e: 'update:query', value: string): void
-}>()
-
-const searchQuery = ref('')
-
-function onInput() {
-  emit('update:query', searchQuery.value)
+function onInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  emit('update:query', target.value)
 }
 
 function clearSearch() {
-  searchQuery.value = ''
   emit('update:query', '')
 }
 </script>

@@ -18,23 +18,88 @@ interface Phone {
   phoneTypeId: number;
 }
 
-/*interface PhoneType {
-  phoneTypeId: number;
-  phoneType: string;
-}*/
+const itemsPerPage = 10
+const currentPage = ref(1)
 
+const sortKey = ref<'firstName' | 'lastName' | 'email'>('lastName')
+const sortAsc = ref(true)
+
+const totalPages = computed(() =>
+  Math.ceil(filteredClients.value.length / itemsPerPage)
+)
+
+const pagedClients = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return sortedClients.value.slice(start, end)
+})
+
+const sortedClients = computed(() => {
+  const sorted = [...filteredClients.value]
+  sorted.sort((a, b) => {
+    const valA = (a[sortKey.value] || '').toString().toLowerCase()
+    const valB = (b[sortKey.value] || '').toString().toLowerCase()
+    if (valA < valB) return sortAsc.value ? -1 : 1
+    if (valA > valB) return sortAsc.value ? 1 : -1
+    return 0
+  })
+  return sorted
+})
+
+function changeSort(column: 'firstName' | 'lastName' | 'email') {
+  if (sortKey.value === column) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortKey.value = column
+    sortAsc.value = true
+  }
+}
+
+// search box input
 const query = ref('')
+
+// filter dropdown state
+const archiveFilter = ref<'all' | 'archived' | 'active'>('all')
+
+// helper to strip all non-digits from phone numbers
+const clean = (s: string) => s.replace(/\D/g, '')
 
 const clients = ref<Client[]>([]);
 
 const filteredClients = computed(() => {
-  if (!query.value.trim()) return clients.value
-  const lower = query.value.toLowerCase()
-  return clients.value.filter(c =>
-    `${c.firstName} ${c.lastName}`.toLowerCase().includes(lower)
-    || c.email?.toLowerCase().includes(lower)
-  )
-})
+  const lowerQuery = (query.value || '').toLowerCase().trim();
+  const numericQuery = clean(query.value);
+  const hasQuery = lowerQuery.length > 0 || numericQuery.length > 0;
+
+  const results = clients.value.filter(client => {
+    const first = (client.firstName || '').toLowerCase();
+    const last = (client.lastName || '').toLowerCase();
+    const fullName = `${first} ${last}`.trim();
+    const email = (client.email || '').toLowerCase();
+
+    const phoneDigits = (client.phones ?? [])
+      .filter(p => p && typeof p.phoneNumber === 'string')
+      .map(p => clean(p.phoneNumber ?? ''))
+      .join(' ');
+
+    const matchesQuery =
+      fullName.includes(lowerQuery) ||
+      email.includes(lowerQuery) ||
+      (numericQuery.length > 0 && phoneDigits.includes(numericQuery));
+
+    const matchesArchive =
+      archiveFilter.value === 'all' ||
+      (archiveFilter.value === 'archived' && client.isArchived === true) ||
+      (archiveFilter.value === 'active' && client.isArchived === false);
+
+    console.log(`[MATCH TEST] "${query.value}" | numericQuery: ${numericQuery} | fullName: ${fullName} | match: ${matchesQuery} & archive: ${matchesArchive}`);
+
+    return (hasQuery ? matchesQuery : true) && matchesArchive;
+  });
+
+  console.log('[FILTERED RESULTS]', results.length);
+  return results;
+});
 
 onMounted(async () => {
   try {
@@ -79,20 +144,44 @@ function confirmDelete(clientId: number) {
       </router-link>
     </div>
     <div class="table-responsive">
-      <SearchBar v-model:query="query" />
+
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <SearchBar v-model:query="query" />
+        <select v-model="archiveFilter" class="form-select w-auto">
+          <option value="all">All</option>
+          <option value="active">Active Only</option>
+          <option value="archived">Archived Only</option>
+        </select>
+      </div>
+
       <table class="table table-striped table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Phone Number(s)</th>
-            <th>Email</th>
+          <th @click="changeSort('firstName')" class="sortable">
+                First Name
+                <span v-if="sortKey === 'firstName'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th @click="changeSort('lastName')" class="sortable cursor-pointer">
+                Last Name
+                <span v-if="sortKey === 'lastName'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+                <th @click="changeSort('lastName')" class="sortable cursor-pointer">
+                Phone Number
+                <span v-if="sortKey === 'lastName'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
+              <th @click="changeSort('email')" class="sortable">
+                Email
+                <span v-if="sortKey === 'email'">{{ sortAsc ? '▲' : '▼' }}</span>
+              </th>
             <th class="text-center">Archived</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="client in clients" :key="client.clientId">
+          <tr v-if="filteredClients.length === 0">
+            <td colspan="6" class="text-center text-muted">No matching clients found.</td>
+          </tr>
+          <tr v-for="client in pagedClients" :key="client.clientId">
             <td>{{ client.firstName }}</td>
             <td>{{ client.lastName }}</td>
             <td>
@@ -150,3 +239,10 @@ function confirmDelete(clientId: number) {
     </div>
   </div>
 </template>
+
+<style>
+  .sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
