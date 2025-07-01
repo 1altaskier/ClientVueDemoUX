@@ -1,14 +1,19 @@
 <!-- src/components/AppFooter.vue -->
 <template>
-  <hr />
-  <footer class="w-full">
-    <div class="flex justify-end items-center pr-4 py-4 text-gray-600">
-      <span class="flex items-center gap-2 text-sm">
-        Powered by Britt Moody, Caffeine, ChatGPT
-      </span>
+  <div>
+    <div>
+      <hr />
+      <div class="d-flex justify-content-center w-100">
+        <router-link
+          to="/"
+          class="btn btn-outline-primary w-25"
+          title="Client List"
+        >
+          <font-awesome-icon :icon="['fas', 'list']" /> Back to List
+        </router-link>
+      </div>
     </div>
-  </footer>
-  <hr />
+  </div>
 </template>
 
 <style scoped>

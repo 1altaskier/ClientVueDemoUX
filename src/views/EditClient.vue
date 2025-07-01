@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import AppFooter from '@/components/AppFooter.vue'
 
 interface Phone {
   phoneId?: number
@@ -130,56 +131,45 @@ onMounted(async () => {
       <form @submit.prevent="updateClient">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div class="m-2 p-2">
-            <label>* First Name:</label>
+            <label class="fw-bold">* First Name:</label>
             <input v-model="client.firstName" class="input" required />
           </div>
           <div class="m-2 p-2">
-            <label>* Last Name:</label>
+            <label class="fw-bold">* Last Name:</label>
             <input v-model="client.lastName" class="input" required />
           </div>
           <div class="m-2 p-2">
-            <label>* Email:</label>
+            <label class="fw-bold">* Email:</label>
             <input v-model="client.email" type="email" class="input" required />
           </div>
           <div class="flex items-center gap-2 mt-2">
-            <label>Archived:</label>
-            <input type="checkbox" v-model="client.isArchived" />
+            <label class="fw-bold">Archived:</label> <input type="checkbox" v-model="client.isArchived" />
           </div>
         </div>
 
         <h3 class="text-xl mt-6 mb-2">Phone Numbers ({{ client.phones.length }})</h3>
         <button type="button" class="btn-primary-show-phone mb-2" @click="showPhones = !showPhones">
-          {{ showPhones ? 'Hide Phones' : 'Show Phones' }}
+          
+          {{showPhones ? 'Hide Phones' : 'Show Phones'}}
+            
         </button>
         <div v-if="showPhones">
           <div v-for="(phone, index) in client.phones" :key="index" class="border p-3 rounded mb-2">
-            <label>Number:</label>
+            <label class="fw-bold">Number:</label>
             <input v-model="phone.phoneNumber" class="input w-full mb-2" placeholder="123-456-7890" />
-            <label>Phone Type:</label>
+            <label class="fw-bold">Phone Type:</label>
             <select v-model="phone.phoneTypeId" class="input w-full">
               <option disabled value="">Select Phone Type</option>
               <option v-for="type in phoneTypes" :key="type.phoneTypeId" :value="type.phoneTypeId">
                 {{ type.type }}
               </option>
             </select>
-            <button type="button" class="btn-primary mt-2" @click="removePhone(index)">Remove</button>
+            <button type="button" class="btn btn-outline-danger mt-2" @click="removePhone(index)">Remove</button>
           </div>
-          <button type="button" class="btn-primary" @click="addPhone">+ Add Phone</button>
-        </div>
-        <hr />
-        <div class="mt-4 text-center w-100">
-          <!-- Row 1: Update + Reset -->
-          <div class="mb-3">
-            <button type="submit" class="btn btn-primary me-2" @click="toastifyFormError()">Update Client</button>
-            <button type="button" class="btn btn-secondary" @click="resetChanges">Reset Changes</button>
-          </div>
-
-          <!-- Row 2: Back to List -->
-          <div>
-            <button type="button" class="btn btn-light w-100 w-sm-auto" @click="router.push('/')">Back to List</button>
-          </div>
+          <button type="button" class="btn btn-primary" @click="addPhone">+ Add New Phone</button>
         </div>
       </form>
+      <app-footer />
     </div>
   </div>
 </template>
