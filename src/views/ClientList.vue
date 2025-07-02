@@ -1,6 +1,22 @@
 <script setup lang="ts">
 import SearchBar from '@/components/SearchBar.vue'
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+
+onMounted(async () => {
+  try {
+    const response = await fetch('https://localhost:7242/api/clients');
+    const data = await response.json(); // parse response body once
+
+    if (!response.ok) {
+      console.error('Server error:', data);
+      return;
+    }
+
+    clients.value = data; // assign to your local ref
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+});
 
 interface Client {
   clientId: number;
@@ -8,7 +24,7 @@ interface Client {
   lastName: string;
   email: string;
   isArchived: Boolean;
-  phones: Phone[];
+  phones: { phoneNumber: string }[]
 }
 
 interface Phone {
@@ -18,54 +34,7 @@ interface Phone {
   phoneTypeId: number;
 }
 
-const itemsPerPage = 10
-const currentPage = ref(1)
-
-const sortKey = ref<'firstName' | 'lastName' | 'email' | 'phoneNumber'>('lastName')
 const sortAsc = ref(true)
-
-const totalPages = computed(() =>
-  Math.ceil(filteredClients.value.length / itemsPerPage)
-)
-
-const pagedClients = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return sortedClients.value.slice(start, end)
-})
-
-const sortedClients = computed(() => {
-  return [...clients.value].sort((a, b) => {
-    let valA: string | number | boolean | undefined
-    let valB: string | number | boolean | undefined
-
-    switch(sortKey.value) {
-      case 'firstName':
-      case 'lastName':
-      case 'email':
-        valA = a[sortKey.value]
-        valB = b[sortKey.value]
-        break
-      case 'phoneNumber':
-        valA = a.phones[0]?.phoneNumber || ''
-        valB = b.phones[0]?.phoneNumber || ''
-        break
-      default:
-        valA = ''
-        valB = ''
-    }
-
-    if (typeof valA === 'string' && typeof valB === 'string') {
-      valA = valA.toLowerCase()
-      valB = valB.toLowerCase()
-    }
-
-    if (valA < valB) return sortAsc.value ? -1 : 1
-    if (valA > valB) return sortAsc.value ? 1 : -1
-    return 0
-  })
-})
-
 
 function changeSort(column: 'firstName' | 'lastName' | 'email') {
   if (sortKey.value === column) {
@@ -83,71 +52,95 @@ const query = ref('')
 const archiveFilter = ref<'all' | 'archived' | 'active'>('all')
 
 // helper to strip all non-digits from phone numbers
-const clean = (s: string) => s.replace(/\D/g, '')
+function clean(value: string | undefined | null): string {
+  return (value ?? '').replace(/\D/g, '')
+}
 
 const clients = ref<Client[]>([]);
 
 const filteredClients = computed(() => {
-  const lowerQuery = (query.value || '').toLowerCase().trim();
-  const numericQuery = clean(query.value);
-  const hasQuery = lowerQuery.length > 0 || numericQuery.length > 0;
-
-  const results = clients.value.filter(client => {
-    const first = (client.firstName || '').toLowerCase();
-    const last = (client.lastName || '').toLowerCase();
-    const fullName = `${first} ${last}`.trim();
-    const email = (client.email || '').toLowerCase();
-
-    const phoneDigits = (client.phones ?? [])
-      .filter(p => p && typeof p.phoneNumber === 'string')
-      .map(p => clean(p.phoneNumber ?? ''))
-      .join(' ');
-
-    const matchesQuery =
-      fullName.includes(lowerQuery) ||
-      email.includes(lowerQuery) ||
-      (numericQuery.length > 0 && phoneDigits.includes(numericQuery));
-
-    const matchesArchive =
+  return clients.value.filter(client => {
+    const search = query.value.toLowerCase();
+    const fullName = `${client.firstName} ${client.lastName}`.toLowerCase();
+    const email = client.email?.toLowerCase() || '';
+    const phoneNumbers = client.phones.map(p => p.phoneNumber).join(' ');
+    const archiveMatch =
       archiveFilter.value === 'all' ||
-      (archiveFilter.value === 'archived' && client.isArchived === true) ||
-      (archiveFilter.value === 'active' && client.isArchived === false);
+      (archiveFilter.value === 'active' && !client.isArchived) ||
+      (archiveFilter.value === 'archived' && client.isArchived);
 
-    console.log(`[MATCH TEST] "${query.value}" | numericQuery: ${numericQuery} | fullName: ${fullName} | match: ${matchesQuery} & archive: ${matchesArchive}`);
+    const match = fullName.includes(search)
+      || email.includes(search)
+      || phoneNumbers.includes(search);
 
-    return (hasQuery ? matchesQuery : true) && matchesArchive;
+    return archiveMatch && match;
   });
-
-  console.log('[FILTERED RESULTS]', results.length);
-  return results;
 });
 
-onMounted(async () => {
-  try {
-    const response = await fetch('https://localhost:7242/api/clients');
+type SortField = 'firstName' | 'lastName' | 'email' | 'phone';
 
-    const data = await response.json(); // read JSON once
+const sortKey = ref<SortField>('lastName');
+const sortDirection = ref<'asc' | 'desc'>('asc');
 
-    if (!response.ok) {
-      console.error('Server error:', data);
-      return;
+const sortedClients = computed(() => {
+  const key = sortKey.value;
+  const dir = sortDirection.value === 'asc' ? 1 : -1;
+
+  return [...filteredClients.value].sort((a, b) => {
+    let aVal: any;
+    let bVal: any;
+
+    if (key === 'phone') {
+      // Sort by first phone number, or empty string if none
+      aVal = a.phones[0]?.phoneNumber || '';
+      bVal = b.phones[0]?.phoneNumber || '';
+    } else {
+      aVal = (a as any)[key] ?? '';
+      bVal = (b as any)[key] ?? '';
     }
 
-    clients.value = data;
-    console.log('Loaded clients:', clients.value);
-  } catch (error) {
-    console.error('Unexpected error loading clients:', error);
-  }
+    // Normalize strings to lowercase for consistent sorting
+    if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+    if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+
+    if (aVal < bVal) return -1 * dir;
+    if (aVal > bVal) return 1 * dir;
+    return 0;
+  });
 });
 
-function sortBy(column: 'firstName' | 'lastName' | 'email') {
-  if (sortKey.value === column) {
-    sortAsc.value = !sortAsc.value;
+function setSort(key: SortField) {
+  if (sortKey.value === key) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
   } else {
-    sortKey.value = column;
-    sortAsc.value = true;
+    sortKey.value = key;
+    sortDirection.value = 'asc';
   }
 }
+
+const itemsPerPage = ref(5);
+const currentPage = ref(1);
+
+const totalPages = computed(() => {
+  return Math.ceil(sortedClients.value.length / itemsPerPage.value);
+});
+
+const pageNumbers = computed(() => {
+  const pages = [];
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+const pagedClients = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  return sortedClients.value.slice(start, start + itemsPerPage.value);
+});
+
+watch([query, archiveFilter, sortKey, sortDirection, itemsPerPage], () => {
+  currentPage.value = 1;
+});
 
 function confirmDelete(clientId: number) {
   const client = clients.value.find(c => c.clientId === clientId);
@@ -187,7 +180,7 @@ function confirmDelete(clientId: number) {
       <table class="table table-striped table-hover align-middle">
         <thead class="table-light">
           <tr>
-            <th @click="sortBy('firstName')" class="sortable cursor-pointer">
+            <th @click="setSort('firstName')" class="sortable cursor-pointer">
               First Name
               <font-awesome-icon
                 v-if="sortKey === 'firstName' && sortAsc"
@@ -201,7 +194,7 @@ function confirmDelete(clientId: number) {
               />
             </th>
 
-            <th @click="sortBy('lastName')" class="sortable cursor-pointer">
+            <th @click="setSort('lastName')" class="sortable cursor-pointer">
               Last Name
               <font-awesome-icon
                 v-if="sortKey === 'lastName' && sortAsc"
@@ -215,21 +208,22 @@ function confirmDelete(clientId: number) {
               />
             </th>
 
-            <th @click="sortBy('phoneNumber')" class="sortable cursor-pointer">
+            <th @click="setSort('phone')" class="sortable cursor-pointer">
               Phone Number
               <font-awesome-icon
-                v-if="sortKey === 'phoneNumber' && sortAsc"
+                v-if="sortKey === 'phone' && sortAsc"
                 :icon="['fas', 'arrow-up']"
                 class="ms-1"
               />
               <font-awesome-icon
-                v-else-if="sortKey === 'phoneNumber' && !sortAsc"
+                v-else-if="sortKey === 'phone' && !sortAsc"
                 :icon="['fas', 'arrow-down']"
                 class="ms-1"
               />
             </th>
 
-            <th @click="sortBy('email')" class="sortable cursor-pointer">
+
+            <th @click="setSort('email')" class="sortable cursor-pointer">
               Email
               <font-awesome-icon
                 v-if="sortKey === 'email' && sortAsc"
@@ -256,7 +250,7 @@ function confirmDelete(clientId: number) {
             <td>{{ client.lastName }}</td>
             <td>
               <ul class="list-unstyled mb-0" v-if="client.phones?.length">
-                <li v-for="phone in client.phones" :key="phone.phoneId">
+                <li v-for="phone in client.phones" :key="phone.phoneNumber">
                   <a :href="`tel:${phone.phoneNumber}`" class="text-decoration-none text-primary">
                     {{ phone.phoneNumber }}
                   </a>
@@ -302,6 +296,55 @@ function confirmDelete(clientId: number) {
               >
                 <font-awesome-icon :icon="['fas', 'user-times']" />
               </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 gap-2">
+
+                <!-- Items Per Page Selector -->
+                <div>
+                  <label for="itemsPerPage" class="form-label me-2">Show:</label>
+                  <select
+                    id="itemsPerPage"
+                    v-model.number="itemsPerPage"
+                    class="form-select d-inline-block w-auto"
+                  >
+                    <option :value="5">5</option>
+                    <option :value="10">10</option>
+                    <option :value="25">25</option>
+                    <option :value="50">50</option>
+                  </select>
+                  <span class="ms-2">per page</span>
+                </div>
+
+                <!-- Pagination Controls -->
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                      <button class="page-link" @click="currentPage--" :disabled="currentPage === 1">
+                        ‹ Prev
+                      </button>
+                    </li>
+
+                    <li
+                      v-for="page in pageNumbers"
+                      :key="page"
+                      class="page-item"
+                      :class="{ active: page === currentPage }"
+                    >
+                      <button class="page-link" @click="currentPage = page">{{ page }}</button>
+                    </li>
+
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                      <button class="page-link" @click="currentPage++" :disabled="currentPage === totalPages">
+                        Next ›
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+
             </td>
           </tr>
         </tbody>

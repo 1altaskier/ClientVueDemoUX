@@ -147,12 +147,13 @@ onMounted(async () => {
           </div>
         </div>
 
-        <h3 class="text-xl mt-6 mb-2">Phone Numbers ({{ client.phones.length }})</h3>
-        <button type="button" class="btn-primary-show-phone mb-2" @click="showPhones = !showPhones">
-          
-          {{showPhones ? 'Hide Phones' : 'Show Phones'}}
-            
-        </button>
+        <div><h3 class="text-xl mt-6 mb-2">Phone Numbers ({{ client.phones.length }})</h3></div>
+        <div><button type="button" class="btn btn-primary mb-2" @click="addPhone">+ Add New Phone</button></div>
+        <div>
+          <button type="button" class="btn-primary-show-phone mb-2" @click="showPhones = !showPhones">
+            {{showPhones ? 'Hide Phones' : 'Show Phones'}}
+          </button>
+      </div>
         <div v-if="showPhones">
           <div v-for="(phone, index) in client.phones" :key="index" class="border p-3 rounded mb-2">
             <label class="fw-bold">Number:</label>
@@ -166,7 +167,9 @@ onMounted(async () => {
             </select>
             <button type="button" class="btn btn-outline-danger mt-2" @click="removePhone(index)">Remove</button>
           </div>
-          <button type="button" class="btn btn-primary" @click="addPhone">+ Add New Phone</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" @click="addPhone">Update Client</button>
         </div>
       </form>
       <app-footer />
