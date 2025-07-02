@@ -27,34 +27,14 @@ interface Client {
   phones: { phoneNumber: string }[]
 }
 
-interface Phone {
-  phoneId: number;
-  clientId: number;
-  phoneNumber: string;
-  phoneTypeId: number;
-}
-
 const sortAsc = ref(true)
 
-function changeSort(column: 'firstName' | 'lastName' | 'email') {
-  if (sortKey.value === column) {
-    sortAsc.value = !sortAsc.value
-  } else {
-    sortKey.value = column
-    sortAsc.value = true
-  }
-}
 
 // search box input
 const query = ref('')
 
 // filter dropdown state
 const archiveFilter = ref<'all' | 'archived' | 'active'>('all')
-
-// helper to strip all non-digits from phone numbers
-function clean(value: string | undefined | null): string {
-  return (value ?? '').replace(/\D/g, '')
-}
 
 const clients = ref<Client[]>([]);
 
