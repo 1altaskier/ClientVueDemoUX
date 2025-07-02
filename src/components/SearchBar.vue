@@ -14,15 +14,15 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ query: string }>()
-const emit = defineEmits<{ (e: 'update:query', value: string): void }>()
+  const props = defineProps<{ query: string }>()
+  const emit = defineEmits<{ (e: 'update:query', value: string): void }>()
 
-function onInput(event: Event) {
-  const target = event.target as HTMLInputElement
-  emit('update:query', target.value)
-}
+  function onInput(event: Event) {
+    const target = event.target as HTMLInputElement
+    emit('update:query', target.value)
+  }
 
-function clearSearch() {
-  emit('update:query', '')
-}
+  function clearSearch() {
+    emit('update:query', '')
+  }
 </script>
