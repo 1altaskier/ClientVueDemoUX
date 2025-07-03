@@ -29,7 +29,9 @@ interface PhoneType {
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+
 const clientId = Number(route.params.id)
+
 const showPhones = ref(false)
 const phoneTypes = ref<PhoneType[]>([])
 const phoneErrors = ref<string[]>([])
