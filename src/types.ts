@@ -10,7 +10,7 @@ export interface Client {
 
 export interface Phone {
   phoneId: number;
-  //clientId: number;
+  clientId: number;
   phoneNumber: string;
   phoneTypeId: number;
 }

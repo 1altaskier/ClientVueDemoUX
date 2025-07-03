@@ -1,23 +1,11 @@
 <script setup lang="ts">
 import SearchBar from '@/components/SearchBar.vue'
 import { ref, onMounted, computed, watch } from 'vue';
+import axios from 'axios'
+import { useToast } from 'vue-toastification'
+import type { Phone } from '@/types';
 
-onMounted(async () => {
-  try {
-    const response = await fetch('https://localhost:7242/api/clients');
-    const data = await response.json(); // parse response body once
-
-    if (!response.ok) {
-      console.error('Server error:', data);
-      return;
-    }
-
-    clients.value = data; // assign to your local ref
-  } catch (error) {
-    console.error('Fetch error:', error);
-  }
-});
-
+// --- Interfaces ---
 interface Client {
   clientId: number;
   firstName: string;
@@ -27,17 +15,105 @@ interface Client {
   phones: { phoneNumber: string }[]
 }
 
-const sortAsc = ref(true)
-
-
-// search box input
-const query = ref('')
-
-// filter dropdown state
-const archiveFilter = ref<'all' | 'archived' | 'active'>('all')
-
+// --- Reactive State ---
 const clients = ref<Client[]>([]);
+const query = ref('');
+const archiveFilter = ref<'all' | 'archived' | 'active'>('all');
 
+const sortKey = ref<'firstName' | 'lastName' | 'email' | 'phone'>('lastName');
+const sortDirection = ref<'asc' | 'desc'>('asc');
+const sortAsc = ref(true); // (Unused? consider removing)
+
+const itemsPerPage = ref(5);
+const currentPage = ref(1);
+
+const showArchiveModal = ref(false);
+const clientToArchive = ref<Client | null>(null);
+
+const showDeleteModal = ref(false);
+const clientToDelete = ref<Client | null>(null);
+
+const toast = useToast();
+
+// --- Lifecycle Hooks ---
+onMounted(async () => {
+  try {
+    const response = await fetch('https://localhost:7242/api/clients');
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Server error:', data);
+      return;
+    }
+
+    clients.value = data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+});
+
+// --- Modal Handlers ---
+function requestDelete(client: Client) {
+  clientToDelete.value = client;
+  showDeleteModal.value = true;
+}
+
+function requestArchive(client: Client) {
+  clientToArchive.value = client;
+  showArchiveModal.value = true;
+}
+
+// --- Archive & Delete API calls ---
+async function confirmArchive() {
+  if (!clientToArchive.value) return;
+
+  const dto = {
+    clientId: clientToArchive.value.clientId,
+    firstName: clientToArchive.value.firstName,
+    lastName: clientToArchive.value.lastName,
+    email: clientToArchive.value.email || '',
+    isArchived: true,
+    phones: (clientToArchive.value.phones as Phone[]).map(phone => ({
+      phoneId: phone.phoneId ?? 0,
+      clientId: phone.clientId,
+      phoneTypeId: phone.phoneTypeId,
+      phoneNumber: phone.phoneNumber
+    }))
+  };
+
+  try {
+    await axios.put(`https://localhost:7242/api/clients/${dto.clientId}`, dto);
+
+    clients.value = clients.value.filter(c => c.clientId !== dto.clientId);
+    toast.success(`Client ${dto.firstName} ${dto.lastName} archived.`);
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to archive client.');
+  } finally {
+    showArchiveModal.value = false;
+    clientToArchive.value = null;
+  }
+}
+
+async function confirmDelete() {
+  if (!clientToDelete.value) return;
+
+  const id = clientToDelete.value.clientId;
+  try {
+    await axios.delete(`https://localhost:7242/api/clients/${id}`);
+
+    clients.value = clients.value.filter(c => c.clientId !== id);
+    toast.success(`Client ${clientToDelete.value.firstName} ${clientToDelete.value.lastName} deleted.`);
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to delete client.');
+  } finally {
+    showDeleteModal.value = false;
+    clientToDelete.value = null;
+  }
+}
+
+// --- Filtering & Searching ---
 const filteredClients = computed(() => {
   return clients.value.filter(client => {
     const search = query.value.toLowerCase();
@@ -57,11 +133,7 @@ const filteredClients = computed(() => {
   });
 });
 
-type SortField = 'firstName' | 'lastName' | 'email' | 'phone';
-
-const sortKey = ref<SortField>('lastName');
-const sortDirection = ref<'asc' | 'desc'>('asc');
-
+// --- Sorting ---
 const sortedClients = computed(() => {
   const key = sortKey.value;
   const dir = sortDirection.value === 'asc' ? 1 : -1;
@@ -71,7 +143,6 @@ const sortedClients = computed(() => {
     let bVal: any;
 
     if (key === 'phone') {
-      // Sort by first phone number, or empty string if none
       aVal = a.phones[0]?.phoneNumber || '';
       bVal = b.phones[0]?.phoneNumber || '';
     } else {
@@ -79,7 +150,6 @@ const sortedClients = computed(() => {
       bVal = (b as any)[key] ?? '';
     }
 
-    // Normalize strings to lowercase for consistent sorting
     if (typeof aVal === 'string') aVal = aVal.toLowerCase();
     if (typeof bVal === 'string') bVal = bVal.toLowerCase();
 
@@ -89,7 +159,7 @@ const sortedClients = computed(() => {
   });
 });
 
-function setSort(key: SortField) {
+function setSort(key: typeof sortKey.value) {
   if (sortKey.value === key) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
   } else {
@@ -98,9 +168,7 @@ function setSort(key: SortField) {
   }
 }
 
-const itemsPerPage = ref(5);
-const currentPage = ref(1);
-
+// --- Pagination ---
 const totalPages = computed(() => {
   return Math.ceil(sortedClients.value.length / itemsPerPage.value);
 });
@@ -118,20 +186,10 @@ const pagedClients = computed(() => {
   return sortedClients.value.slice(start, start + itemsPerPage.value);
 });
 
+// --- Watchers ---
 watch([query, archiveFilter, sortKey, sortDirection, itemsPerPage], () => {
   currentPage.value = 1;
 });
-
-function confirmDelete(clientId: number) {
-  const client = clients.value.find(c => c.clientId === clientId);
-  if (!client) return;
-
-  if (confirm(`Are you sure you want to delete this client (Client Id: ${client.clientId} - ${client.firstName} ${client.lastName})?`)) {
-    clients.value = clients.value.filter(c => c.clientId !== clientId);
-    // Optionally send a DELETE request to the backend here
-  }
-}
-
 </script>
 
 <template>
@@ -258,21 +316,24 @@ function confirmDelete(clientId: number) {
               >
                 <font-awesome-icon :icon="['fas', 'edit']" />
               </router-link>
-
               <button
-                @click="confirmDelete(client.clientId)"
                 title="Archive"
                 class="btn btn-sm btn-outline-warning me-1"
                 type="button"
+                :disabled="client.isArchived === true"
+                @click="requestArchive(client)"
               >
-                <font-awesome-icon :icon="['fas', 'archive']" />
+                <font-awesome-icon
+                  :icon="['fas', 'archive']"
+                  :class="{ 'text-muted': client.isArchived === true, 'text-warning': !client.isArchived }"
+                />
               </button>
 
               <button
                 title="Delete"
                 class="btn btn-sm btn-outline-danger"
                 type="button"
-                @click="confirmDelete(client.clientId)"
+                @click="requestDelete(client)"
               >
                 <font-awesome-icon :icon="['fas', 'user-times']" />
               </button>
@@ -331,6 +392,71 @@ function confirmDelete(clientId: number) {
       </table>
     </div>
   </div>
+
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    role="dialog"
+    style="display: block"
+    v-if="showArchiveModal"
+  >
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-warning">Confirm Archive</h5>
+          <button type="button" class="btn-close" @click="showArchiveModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Are you sure you want to Archive
+            <strong>{{ clientToArchive?.firstName }} {{ clientToArchive?.lastName }}</strong>?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showArchiveModal = false">Cancel</button>
+          <button class="btn btn-warning" @click="confirmArchive">
+            <i class="fas fa-trash me-1"></i> Archive
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional overlay -->
+<div class="modal-backdrop fade show" v-if="showArchiveModal"></div>
+
+  <div
+  class="modal fade show"
+  tabindex="-1"
+  role="dialog"
+  style="display: block"
+  v-if="showDeleteModal"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger">Confirm Delete</h5>
+        <button type="button" class="btn-close" @click="showDeleteModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure you want to DELETE
+          <strong>{{ clientToDelete?.firstName }} {{ clientToDelete?.lastName }}</strong>?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
+        <button class="btn btn-danger" @click="confirmDelete">
+          <i class="fas fa-trash me-1"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Optional overlay -->
+<div class="modal-backdrop fade show" v-if="showDeleteModal"></div>
+
 </template>
 
 <style>
