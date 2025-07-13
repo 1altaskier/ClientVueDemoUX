@@ -1,15 +1,46 @@
 <script setup lang="ts">
-  import ClientForm from '@/components/ClientForm.vue'
-  import { reactive } from 'vue';
+import { ref } from 'vue'
+import ClientForm from '@/components/ClientForm.vue'
+import type { Client } from '@/types/models'
+import type { PhoneType } from '@/types/models'
 
-  const client = reactive({ name: '' }) // or fetch existing one for edit
+const client = ref<Client>({
+  clientId: 0,
+  firstName: '',
+  lastName: '',
+  email: null,
+  isArchived: false,
+  phones: [],
+})
 
-  function handleSubmit(updatedClient: any) {
-  // Save to API or update state
-  console.log('Submitted:', updatedClient)
+const phoneTypes = ref<PhoneType[]>([])
+
+function handleSubmit(newClient: Client) {
+  console.log('Submitting new client:', newClient)
+  // TODO: await axios.post('/api/clients', newClient)
+
+  // Reset form after submission
+  client.value = {
+    clientId: 0,
+    firstName: '',
+    lastName: '',
+    email: null,
+    isArchived: false,
+    phones: [],
+  }
 }
 </script>
 
 <template>
-  <ClientForm :client="client" @submit="handleSubmit" />
+  <div class="container my-4">
+
+    <h2>Add New Client</h2>
+    
+    <ClientForm
+      v-model="client"
+      :phoneTypes="phoneTypes"
+      @submit="handleSubmit"
+    />
+
+  </div>
 </template>
