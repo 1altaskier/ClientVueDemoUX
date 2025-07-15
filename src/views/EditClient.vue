@@ -6,14 +6,7 @@ import { useToast } from 'vue-toastification'
 import ClientForm from '@/components/ClientForm.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import type { Client, PhoneType } from '@/types/models'
-
-interface Phone {
-  phoneId?: number
-  phoneTypeId: number | null
-  phoneNumber: string
-  clientId: number
-}
+import type { Client } from '@/types/models'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,20 +40,7 @@ async function loadClient() {
   client.value = data
 }
 
-/*
-async function loadPhoneTypes() {
-  try {
-    const { data } = await axios.get<PhoneType[]>('https://localhost:7242/api/PhoneTypes/')
-    //console.log('Phone types received:', data)
-    phoneTypes.value = data
-  } catch (error) {
-    console.error('Error loading phone types:', error)
-  }
-}
-  */
-
 onMounted(async () => {
-  //await loadPhoneTypes()
   if (isEdit.value) await loadClient()
 })
 </script>
@@ -70,7 +50,7 @@ onMounted(async () => {
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="text-secondary">Edit Client</h2>
       <router-link to="/" class="btn btn-outline-primary" title="Back to List">
-        <font-awesome-icon :icon="['fas', 'list']" />
+        Back to List <font-awesome-icon :icon="['fas', 'list']" />
       </router-link>
     </div>
     <div class="p-4 max-w-2xl mx-auto">

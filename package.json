@@ -17,11 +17,14 @@
     "axios": "^1.9.0",
     "bootstrap": "^5.3.7",
     "floating-vue": "^5.2.2",
+    "lodash": "^4.17.21",
     "vue": "^3.5.14",
     "vue-router": "^4.5.1",
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.20",
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.15.21",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/tsconfig": "^0.7.0",

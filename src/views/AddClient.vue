@@ -34,13 +34,15 @@ function handleSubmit(newClient: Client) {
 <template>
   <div class="container my-4">
 
-    <h2>Add New Client</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="text-secondary">Add New Client</h2>
+
+      <router-link to="/" class="btn btn-outline-primary" title="Back to List">
+        Back to List <font-awesome-icon :icon="['fas', 'list']" />
+      </router-link>
+    </div>
     
-    <ClientForm
-      v-model="client"
-      :phoneTypes="phoneTypes"
-      @submit="handleSubmit"
-    />
+    <ClientForm v-model="client" @submit="handleSubmit" />
 
   </div>
 </template>

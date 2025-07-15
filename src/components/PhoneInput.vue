@@ -27,6 +27,7 @@ async function loadPhoneTypes() {
 
 const props = defineProps<{
   phone: Phone
+  uniqueId: string
 }>()
 
 const emit = defineEmits<{
@@ -40,8 +41,22 @@ watch(() => props.phone, (newVal) => {
   localPhone.value = { ...newVal }
 }, { deep: true })
 
-watch(localPhone, (val) => {
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+  let timer: number | undefined
+  return function (...args: any[]) {
+    clearTimeout(timer)
+    timer = window.setTimeout(() => fn(...args), delay)
+  } as T
+}
+
+const emitUpdate = debounce((val: Phone) => {
   emit('update:phone', val)
+}, 100)
+
+watch(localPhone, (val) => {
+  if (JSON.stringify(val) !== JSON.stringify(props.phone)) {
+    emitUpdate(val)
+  }
 }, { deep: true })
 
 function remove() {
@@ -54,44 +69,49 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="phone-input-container">
-    <div class="phone-input-row">
-      <div class="input-group">
-        <label class="input-label" for="phoneNumber">Phone Number</label>
+<div class="phone-input-container">
+  <div class="phone-input-row d-flex align-items-end gap-3 flex-wrap">
+
+    <!-- Phone Number -->
+    <div class="form-group">
+      <label :for="`phoneNumber-${uniqueId}`" class="form-label">Phone Number</label>
         <input
-            id="phoneNumber"
-            v-model="localPhone.phoneNumber"
-            placeholder="(123) 456-7890"
-            class="input flex-grow"
-            type="tel"
-            pattern="\\(\\d{3}\\) \\d{3}-\\d{4}"
-            title="Format: (123) 456-7890"
-            required
+        :id="`phoneNumber-${uniqueId}`"
+        v-model="localPhone.phoneNumber"
+        placeholder="Phone Number"
+        class="form-control"
+        type="tel"
+        title="Only numbers, spaces, parentheses, plus, and dashes allowed"
+        required
         />
-      </div>
+    </div>
 
-      <div class="input-group">
-        <label class="input-label" for="phoneType">Phone Type</label>
-        <select
-          id="phoneType"
-          v-model="localPhone.phoneTypeId"
-          class="input"
-          required
+    <!-- Phone Type -->
+    <div class="form-group">
+      <label :for="`phoneType-${uniqueId}`" class="form-label">Phone Type</label>
+      <select
+        :id="`phoneType-${uniqueId}`"
+        v-model="localPhone.phoneTypeId"
+        class="form-select"
+        required
+      >
+        <option disabled value="">Select Phone Type</option>
+        <option
+          v-for="type in phoneTypes"
+          :key="type.phoneTypeId"
+          :value="type.phoneTypeId"
         >
-          <option disabled value="">Select Phone Type</option>
-          <option
-            v-for="type in phoneTypes"
-            :key="type.phoneTypeId"
-            :value="type.phoneTypeId"
-          >
-            {{ type.type }}
-          </option>
-        </select>
-      </div>
+          {{ type.type }}
+        </option>
+      </select>
+    </div>
 
+    <!-- Remove Button -->
+    <div class="form-group">
+      <label class="form-label invisible">Remove</label>
       <button
         type="button"
-        class="btn-outline-danger remove-btn"
+        class="btn btn-outline-danger d-block"
         @click="remove"
         aria-label="Remove phone number"
         title="Remove phone number"
@@ -99,7 +119,10 @@ onMounted(async () => {
         🗑️
       </button>
     </div>
+
   </div>
+</div>
+
 </template>
 
 <style scoped>

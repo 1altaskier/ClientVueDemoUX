@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits, defineProps } from 'vue'
+import { ref, defineEmits, defineProps, computed } from 'vue'
 import PhoneInput from './PhoneInput.vue'
 
 interface Phone {
@@ -22,60 +22,62 @@ const props = defineProps<{
   modelValue: Client
 }>()
 
+const phoneErrors = ref<string[]>([])
+
+function isEqual(a: any, b: any): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
+// ✅ Computed for two-way binding without watchers
+const client = computed({
+  get() {
+    return props.modelValue
+  },
+  set(val: Client) {
+    if (!isEqual(val, props.modelValue)) {
+      emit('update:modelValue', val)
+    }
+  }
+})
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Client): void
   (e: 'submit', value: Client): void
 }>()
 
-const client = ref<Client>({ ...props.modelValue })
-const showPhones = ref(false)
-const phoneErrors = ref<string[]>([])
-
-function isEqual(a: any, b: any) {
-  return JSON.stringify(a) === JSON.stringify(b)
-}
-
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    if (!isEqual(newVal, client.value)) {
-      client.value = { ...newVal }
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  client,
-  (val) => {
-    if (!isEqual(val, props.modelValue)) {
-      emit('update:modelValue', val)
-    }
-  },
-  { deep: true }
-)
-
 function validatePhones() {
   phoneErrors.value = client.value.phones.map(phone => {
-    const pattern = /^\d{3}-\d{3}-\d{4}$/
+    const digits = stripNonDigits(phone.phoneNumber)
     if (!phone.phoneNumber) return 'Phone number is required.'
-    if (!pattern.test(phone.phoneNumber)) return 'Invalid format. Use XXX-XXX-XXXX.'
+    if (digits.length !== 10) return 'Phone number must have exactly 10 digits.'
     return ''
   })
   return phoneErrors.value.every(err => err === '')
 }
 
+function stripNonDigits(phoneNumber: string): string {
+  return phoneNumber.replace(/\D/g, '')
+}
+
 function addPhone() {
-  client.value.phones.push({
-    phoneId: undefined,
-    phoneNumber: '',
-    phoneTypeId: null,
-    clientId: client.value.clientId,
-  })
+  client.value = {
+    ...client.value,
+    phones: [
+      ...client.value.phones,
+      {
+        phoneId: undefined,
+        phoneNumber: '',
+        phoneTypeId: null,
+        clientId: client.value.clientId,
+      }
+    ]
+  }
 }
 
 function updatePhone(index: number, updatedPhone: Phone) {
-  client.value.phones[index] = updatedPhone
+  client.value.phones = client.value.phones.map((p, i) =>
+    i === index ? updatedPhone : p
+  )
 }
 
 function removePhone(index: number) {
@@ -84,15 +86,23 @@ function removePhone(index: number) {
 
 function onSubmit() {
   if (!validatePhones()) {
-    console.warn('Phone validation failed.');
-    return;
+    console.warn('Phone validation failed.')
+    return
   }
 
-  emit('submit', client.value);
+  // Normalize phone numbers before submission
+  client.value.phones = client.value.phones.map(p => ({
+    ...p,
+    phoneNumber: stripNonDigits(p.phoneNumber)
+  }))
+
+  emit('submit', client.value)
 }
 </script>
 
+
 <template>
+  <hr />
   <form @submit.prevent="onSubmit">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div class="m-2 p-2">
@@ -108,22 +118,27 @@ function onSubmit() {
         <input v-model="client.email" type="email" class="input" required />
       </div>
       <div class="flex items-center gap-2 mt-2">
-        <label class="fw-bold">Archived:</label>
-        <input type="checkbox" v-model="client.isArchived" />
+        <label class="fw-bold">Archived:</label> <input type="checkbox" v-model="client.isArchived" />
       </div>
     </div>
 
-    <h3 class="text-xl mt-6 mb-2">Phone Numbers ({{ client.phones.length }})</h3>
+    <hr />
 
-    <div class="mb-2">
-      <button type="button" class="btn btn-primary mb-2" @click="addPhone">+ Add Phone</button>
+    <div>
+      <h3 class="text-xl mt-6 mb-2">Phone Numbers ({{ client.phones.length }})</h3>
     </div>
+    <div class="mb-2">
+      <button type="button" class="btn btn-outline-primary" title="Back to List" @click="addPhone">Add New Phone <font-awesome-icon :icon="['fas', 'plus-circle']" /></button>
+    </div>    
+
+
 
     <TransitionGroup name="fade" tag="div">
       <PhoneInput
         v-for="(phone, index) in client.phones"
-        :key="index"
+        :key="phone.phoneId ?? `new-${index}`"
         :phone="phone"
+        :uniqueId="`phone-${index}`"
         @update:phone="(updatedPhone) => updatePhone(index, updatedPhone)"
         @remove="removePhone(index)"
       />

@@ -247,7 +247,7 @@ watch([query, archiveFilter, sortKey, sortDirection, itemsPerPage], () => {
             </th>
 
             <th @click="setSort('phone')" class="sortable cursor-pointer">
-              Phone Number
+              Phone Number(s)
               <font-awesome-icon
                 v-if="sortKey === 'phone' && sortAsc"
                 :icon="['fas', 'arrow-up']"
